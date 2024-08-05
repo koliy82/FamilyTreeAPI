@@ -1,7 +1,7 @@
 from pymongo import MongoClient
 
-from app.config import MONGO_URL
+from app.config import MONGO_URL, MONGO_DATABASE
 
 client = MongoClient(MONGO_URL)
-db = client["test"]
+db = client[MONGO_DATABASE]
 braks = db["braks"]
