@@ -22,9 +22,15 @@ async def random_brak() -> Brak:
 
 @router.get("/user/{user_id}", responses={404: {"description": "Brak with user_id={user_id} not found"}})
 async def brak_by_user_id(user_id: int) -> Brak:
-    return get_brak_by_user_id(user_id)
+    brak = get_brak_by_user_id(user_id)
+    if brak is None:
+        raise HTTPException(status_code=404, detail=f"Brak with user_id={user_id} not found")
+    return brak
 
 
 @router.get("/kid/{kid_id}", responses={404: {"description": "Brak with kid_id={kid_id} not found"}})
 async def brak_by_kid_id(kid_id: int) -> Brak:
-    return get_brak_by_kid_id(kid_id)
+    brak = get_brak_by_kid_id(kid_id)
+    if brak is None:
+        raise HTTPException(status_code=404, detail=f"Brak with kid_id={kid_id} not found")
+    return brak

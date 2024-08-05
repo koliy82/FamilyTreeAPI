@@ -57,10 +57,11 @@ class Brak(BaseModel):
         return cls(**data)
 
 
-def get_brak_by_id(brak_id: str) -> Brak:
+def get_brak_by_id(brak_id: str) -> Brak | None:
     brak_data = braks.find_one({"_id": brak_id})
     if brak_data is None:
-        raise HTTPException(status_code=404, detail=f"Brak with brak_id= {brak_id} not found")
+        return None
+        # raise HTTPException(status_code=404, detail=f"Brak with brak_id= {brak_id} not found")
     return Brak.from_mongo(brak_data)
 
 
@@ -68,14 +69,13 @@ def get_brak_by_user_id(user_id: int) -> Brak | None:
     brak_data = braks.find_one({"$or": [{"first_user_id": user_id}, {"second_user_id": user_id}]})
     if brak_data is None:
         return None
-        # raise HTTPException(status_code=404, detail=f"Brak with user_id={user_id} not found")
     return Brak.from_mongo(brak_data)
 
 
 def get_brak_by_kid_id(kid_id: int) -> Brak | None:
     brak_data = braks.find_one({"baby_user_id": kid_id})
     if brak_data is None:
-        raise HTTPException(status_code=404, detail=f"Brak with kid_id={kid_id} not found")
+        return None
     return Brak.from_mongo(brak_data)
 
 
