@@ -1,19 +1,16 @@
 import json
 from datetime import datetime
-from typing import Optional, Annotated, Dict, List
+from typing import Optional
 
-from fastapi import HTTPException
-from pydantic import BaseModel, Field, BeforeValidator, ConfigDict
 from bson import json_util, ObjectId
+from pydantic import BaseModel, Field, ConfigDict
 
 from app.database.mongo import braks
+from app.models.PyObjectId import PyObjectId
 
 
 def parse_json(data):
     return json.loads(json_util.dumps(data))
-
-
-PyObjectId = Annotated[str, BeforeValidator(str)]
 
 
 class Brak(BaseModel):
@@ -77,14 +74,3 @@ def get_brak_by_kid_id(kid_id: int) -> Brak | None:
     if brak_data is None:
         return None
     return Brak.from_mongo(brak_data)
-
-
-def build_family_tree(brak: Brak, tree: Dict[tuple, List[int]]) -> None:
-    key = (brak.first_user_id, brak.second_user_id)
-    if key not in tree:
-        tree[key] = []
-    if brak.baby_user_id:
-        tree[key].append(brak.baby_user_id)
-        next_brak = get_brak_by_user_id(brak.baby_user_id)
-        if next_brak:
-            build_family_tree(next_brak, tree)
