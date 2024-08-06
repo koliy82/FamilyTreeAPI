@@ -3,3 +3,5 @@ uvicorn~=0.30.4
 python-dotenv~=1.0.1
 pymongo~=4.8.0
 pydantic~=2.8.2
+starlette~=0.37.2
+treelib~=1.7.0
