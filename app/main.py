@@ -1,11 +1,9 @@
-import json
-
 import uvicorn
 from fastapi import FastAPI
-from starlette.responses import JSONResponse
 
 from features.brak.router import router as brak_router
 from features.tree.router import router as tree_router
+from features.user.router import router as user_router
 
 print("initial program...")
 app = FastAPI(
@@ -30,6 +28,7 @@ def root():
     }
 
 
+app.include_router(user_router)
 app.include_router(brak_router)
 app.include_router(tree_router)
 
