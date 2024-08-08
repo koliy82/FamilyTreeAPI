@@ -1,6 +1,7 @@
 import uvicorn
 from fastapi import FastAPI
 
+from app.config import SERVER_PORT, SERVER_HOST
 from features.brak.router import router as brak_router
 from features.tree.router import router as tree_router
 from features.user.router import router as user_router
@@ -33,4 +34,4 @@ app.include_router(brak_router)
 app.include_router(tree_router)
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="localhost", port=8001)
+    uvicorn.run(app, host=SERVER_HOST, port=SERVER_PORT)

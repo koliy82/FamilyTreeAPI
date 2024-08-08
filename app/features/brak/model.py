@@ -53,6 +53,12 @@ class Brak(BaseModel):
             return None
         return cls(**data)
 
+    @classmethod
+    def partner_id(cls, root_id: int) -> int:
+        if cls.first_user_id == root_id:
+            return cls.second_user_id
+        return cls.first_user_id
+
 
 def get_brak_by_id(brak_id: str) -> Brak | None:
     brak_data = braks.find_one({"_id": brak_id})

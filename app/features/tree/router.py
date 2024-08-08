@@ -1,5 +1,3 @@
-from io import StringIO
-
 from fastapi import APIRouter, HTTPException
 from starlette.responses import PlainTextResponse
 
@@ -37,5 +35,4 @@ async def family_tree(user_id: int):
         raise HTTPException(status_code=404, detail=f"Brak with user_id={user_id} not found")
 
     tree = {}
-    # build_family_tree(brak, tree)
     return tree.__str__()
