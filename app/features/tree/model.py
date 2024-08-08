@@ -1,19 +1,22 @@
-from typing import Dict, Optional
+from typing import Optional
 
 from treelib import Tree as TreeLib
 
 from app.database.mongo import braks
-from app.features.brak.model import Brak, get_brak_by_user_id
+from app.features.brak.model import Brak
 from app.features.user.model import User
 
 
-class UsersBrak:
+# ROOT + PARTNER -> BABY + PARTNER -> BABY + PARTNER -> ...
+class FamilyTree:
+    user_id: int
     brak: Optional[Brak] = None
     first: Optional[User] = None
     second: Optional[User] = None
-    baby: Optional[User] = None
+    next: Optional['FamilyTree'] = None
 
     def __init__(self, user_id: int):
+        self.user_id = user_id
         pipeline = [
             {
                 '$match': {
@@ -41,14 +44,8 @@ class UsersBrak:
                     'foreignField': 'id',
                     'as': 'second'
                 }
-            }, {
-                '$lookup': {
-                    'from': 'users',
-                    'localField': 'baby_user_id',
-                    'foreignField': 'id',
-                    'as': 'baby'
-                }
-            }, {
+            },
+            {
                 '$unwind': {
                     'path': '$first',
                     'preserveNullAndEmptyArrays': True
@@ -58,16 +55,14 @@ class UsersBrak:
                     'path': '$second',
                     'preserveNullAndEmptyArrays': True
                 }
-            }, {
-                '$unwind': {
-                    'path': '$baby',
-                    'preserveNullAndEmptyArrays': True
-                }
-            }
+            },
         ]
         results = braks.aggregate(pipeline)
         for result in results:
+            print(result)
             self.brak = Brak.from_mongo(result)
+            if self.brak is None:
+                continue
             if 'first' in result:
                 first_data = result['first']
                 if first_data:
@@ -76,70 +71,58 @@ class UsersBrak:
                 second_data = result['second']
                 if second_data:
                     self.second = User.from_mongo(second_data)
-            if 'baby' in result:
-                baby_data = result['baby']
-                if baby_data:
-                    self.baby = User.from_mongo(baby_data)
+            if self.brak and self.brak.baby_user_id:
+                self.next = FamilyTree(self.brak.baby_user_id)
+
+    def to_treelib(self):
+        tree_lib = TreeLib()
+        if self.brak is None or self.next is None:
+            tree_lib.create_node(f"Tree is empty", self.user_id)
+            return tree_lib
+        print(f"self={self.user_id} {self.brak.first_user_id} {self.brak.second_user_id} {self.brak.baby_user_id}")
+        root_name, _ = self.root_data()
+        # ROOT NODE
+        tree_lib.create_node(f"{root_name} ❤️‍🔥", self.user_id)
+        root_partner_name, root_partner_id = self.partner_data(self.user_id)
+        # PARTNER NODE
+        tree_lib.create_node(f"{root_partner_name} ❤️‍🔥", root_partner_id, parent=self.user_id)
+
+        def add_nodes(tree: FamilyTree, root_id: int):
+            if tree is None or tree.brak is None:
+                return
+            print(f"tree={tree.user_id} {tree.brak.first_user_id} {tree.brak.second_user_id} {tree.brak.baby_user_id}")
+            first_name, _ = tree.root_data()
+            # BABY NODE
+            tree_lib.create_node(f"👼 {first_name}", tree.user_id, parent=root_id)
+            partner_name, partner_id = tree.partner_data(tree.user_id)
+            # BABY PARTNER NODE
+            tree_lib.create_node(f"🫂 {partner_name}", partner_id, parent=tree.user_id)
+            if tree.next:
+                add_nodes(tree.next, tree.user_id)
+
+        add_nodes(self.next, self.user_id)
+        return tree_lib
 
     def partner_data(self, root_id: int) -> (str, int):
         if self.brak.first_user_id == root_id:
             if self.second:
                 return f"{self.second.first_name} {self.second.last_name}", self.brak.second_user_id
             else:
-                return self.brak.second_user_id.__str__(), self.brak.second_user_id
+                return "?", self.brak.second_user_id
         else:
             if self.first:
                 return f"{self.first.first_name} {self.first.last_name}", self.brak.first_user_id
             else:
-                return self.brak.first_user_id.__str__(), self.brak.first_user_id
+                return "?", self.brak.first_user_id
 
-
-class FamilyTree:
-    def __init__(self, root_user_id: int):
-        self.root_user_id = root_user_id
-        self.tree: Dict[int, UsersBrak] = {}
-        self.build_tree(root_user_id)
-
-    def build_tree(self, user_id: int):
-        model = UsersBrak(user_id)
-        if model.brak:
-            self.tree[user_id] = model
-            if model.brak and model.brak.baby_user_id:
-                self.build_tree(model.brak.baby_user_id)
-
-    def to_treelib(self):
-        tree_lib = TreeLib()
-        root_id = self.root_user_id
-        if root_id not in self.tree:
-            tree_lib.create_node(f"Tree is empty", root_id)
-            return tree_lib
-
-        root_model = self.tree[root_id]
-        if root_model.brak.first_user_id == root_id:
-            if root_model.first:
-                root_name = f"{root_model.first.first_name} {root_model.first.last_name}"
+    def root_data(self) -> (str, int):
+        if self.user_id == self.brak.first_user_id:
+            if self.first:
+                return f"{self.first.first_name} {self.first.last_name}", self.brak.first_user_id
             else:
-                root_name = root_model.brak.first_user_id.__str__()
+                return "?", self.brak.first_user_id
         else:
-            if root_model.second:
-                root_name = f"{root_model.second.first_name} {root_model.second.last_name}"
+            if self.second:
+                return f"{self.second.first_name} {self.second.last_name}", self.brak.second_user_id
             else:
-                root_name = root_model.brak.first_user_id.__str__()
-        tree_lib.create_node(root_name, root_id)
-
-        def add_nodes(parent_id: int):
-            if parent_id not in self.tree:
-                return
-            model = self.tree[parent_id]
-            partner_name, partner_id = model.partner_data(parent_id)
-            tree_lib.create_node(f"{partner_name}", partner_id, parent=parent_id)
-            if model.brak.baby_user_id:
-                if model.baby:
-                    tree_lib.create_node(f"{model.baby.first_name} {model.baby.last_name}",
-                                         model.brak.baby_user_id, parent=parent_id)
-                else:
-                    tree_lib.create_node(f"{model.baby.id}", model.brak.baby_user_id, parent=parent_id)
-                add_nodes(model.brak.baby_user_id)
-
-        add_nodes(root_id)
-        return tree_lib
+                return "?", self.brak.second_user_id
