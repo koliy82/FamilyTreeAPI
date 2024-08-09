@@ -59,7 +59,6 @@ class FamilyTree:
         ]
         results = braks.aggregate(pipeline)
         for result in results:
-            print(result)
             self.brak = Brak.from_mongo(result)
             if self.brak is None:
                 continue
@@ -79,7 +78,6 @@ class FamilyTree:
         if self.brak is None or self.next is None:
             tree_lib.create_node(f"Tree is empty", self.user_id)
             return tree_lib
-        print(f"self={self.user_id} {self.brak.first_user_id} {self.brak.second_user_id} {self.brak.baby_user_id}")
         root_name, _ = self.root_data()
         # ROOT NODE
         tree_lib.create_node(f"{root_name} ❤️‍🔥", self.user_id)
@@ -90,7 +88,6 @@ class FamilyTree:
         def add_nodes(tree: FamilyTree, root_id: int):
             if tree is None or tree.brak is None:
                 return
-            print(f"tree={tree.user_id} {tree.brak.first_user_id} {tree.brak.second_user_id} {tree.brak.baby_user_id}")
             first_name, _ = tree.root_data()
             # BABY NODE
             tree_lib.create_node(f"👼 {first_name}", tree.user_id, parent=root_id)

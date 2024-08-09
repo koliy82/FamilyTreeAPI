@@ -1,6 +1,3 @@
-import json
-
-from bson import json_util
 from fastapi import APIRouter, HTTPException
 
 from app.database.mongo import braks
