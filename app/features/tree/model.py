@@ -75,7 +75,7 @@ class FamilyTree:
 
     def to_treelib(self):
         tree_lib = TreeLib()
-        if self.brak is None or self.next is None:
+        if self.brak is None:
             tree_lib.create_node(f"Tree is empty", self.user_id)
             return tree_lib
         root_name, _ = self.root_data()
