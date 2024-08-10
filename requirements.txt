@@ -5,3 +5,6 @@ pymongo~=4.8.0
 pydantic~=2.8.2
 starlette~=0.37.2
 treelib~=1.7.0
+graphviz~=0.20.3
+PyQt5~=5.15.11
+ete3~=3.1.3
