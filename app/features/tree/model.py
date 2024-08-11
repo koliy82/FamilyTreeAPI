@@ -1,9 +1,5 @@
 from typing import Optional
 
-import graphviz
-from ete3 import Tree as EteTree, TreeStyle, faces, AttrFace
-from treelib import Tree as TreeLib
-
 from app.database.mongo import braks
 from app.features.brak.model import Brak
 from app.features.user.model import User
@@ -76,7 +72,8 @@ class FamilyTree:
                 self.next = FamilyTree(self.brak.baby_user_id)
 
     def to_treelib(self, kid_prefix, partner_prefix):
-        tree_lib = TreeLib()
+        from treelib import Tree
+        tree_lib = Tree()
         if self.brak is None:
             tree_lib.create_node(f"Tree is empty", self.user_id)
             return tree_lib
@@ -105,7 +102,8 @@ class FamilyTree:
     def to_graphviz(self):
         if self.brak is None:
             return None
-        dot = graphviz.Digraph(comment="Family Tree")
+        from graphviz import Digraph
+        dot = Digraph(comment="Family Tree")
 
         def add_nodes(tree: FamilyTree, root_id: int):
             if tree is None or tree.brak is None:
@@ -130,6 +128,29 @@ class FamilyTree:
 
         add_nodes(self.next, self.user_id)
         return dot
+
+    def to_anytree(self):
+        if self.brak is None:
+            return None
+        from anytree import Node
+
+        def build_tree(tree: FamilyTree, r_node: Node):
+            if tree is None or tree.brak is None:
+                return
+            r_name, _ = tree.root_data()
+            part_name, _ = tree.partner_data(tree.user_id)
+            child_node = Node(f"{r_name}", parent=r_node)
+            _ = Node(f"{part_name}", parent=child_node)
+            if tree.next:
+                build_tree(tree.next, child_node)
+
+        root_name, _ = self.root_data()
+        partner_name, partner_id = self.partner_data(self.user_id)
+
+        root_node = Node(f"{root_name}")
+        _ = Node(f"{partner_name}", parent=root_node)
+        build_tree(self.next, root_node)
+        return root_node
 
     def partner_data(self, root_id: int) -> (str, int):
         if self.brak.first_user_id == root_id:
@@ -158,6 +179,7 @@ class FamilyTree:
     def to_ete3(self):
         if self.brak is None:
             return None, None
+        from ete3 import AttrFace, Tree, TreeStyle, faces
 
         def add_nodes(tree: FamilyTree, parent_node):
             if tree is None or tree.brak is None:
@@ -174,7 +196,7 @@ class FamilyTree:
                 add_nodes(tree.next, root_node)
 
         root_name, _ = self.root_data()
-        tree = EteTree(name=root_name)
+        tree = Tree(name=root_name)
         ts = TreeStyle()
         ts.title.add_face(faces.TextFace(f"🤔Семейное древо - {root_name}", fsize=20), column=0)
         ts.show_leaf_name = True

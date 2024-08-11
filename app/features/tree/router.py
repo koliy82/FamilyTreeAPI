@@ -53,3 +53,19 @@ async def family_tree(user_id: int):
         if img_stream is None:
             return {"error": "Family tree not found"}
     return StreamingResponse(img_stream, media_type="image/png")
+
+
+@router.get("/image_anytree/{user_id}", responses={404: {"description": "Family tree not found"}})
+async def family_tree(user_id: int):
+    tree = FamilyTree(user_id)
+    tree = tree.to_anytree()
+    if tree is None:
+        raise HTTPException(status_code=404, detail="Family tree not found")
+
+    with TempFile(suffix=".png") as file:
+        UniqueDotExporter(tree).to_picture(file.temp_file.name)
+        img_stream = BytesIO(file.read())
+        img_stream.seek(0)
+        if img_stream is None:
+            return {"error": "Family tree not found"}
+    return StreamingResponse(img_stream, media_type="image/png")
