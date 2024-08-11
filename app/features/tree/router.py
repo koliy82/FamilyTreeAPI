@@ -2,10 +2,12 @@ import os
 import tempfile
 from io import BytesIO
 
+from anytree.exporter import UniqueDotExporter
 from fastapi import APIRouter, HTTPException
 from starlette.responses import PlainTextResponse, StreamingResponse
 
 from app.features.tree.model import FamilyTree
+from app.utils.temp_file import TempFile
 
 router = APIRouter(
     prefix="/tree",
@@ -44,13 +46,10 @@ async def family_tree(user_id: int):
     if tree is None:
         raise HTTPException(status_code=404, detail="Family tree not found")
 
-    with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp_file:
-        temp_file_path = tmp_file.name
-
-    tree.render(temp_file_path, units="px", tree_style=style)
-    img_stream = BytesIO()
-    with open(temp_file_path, 'rb') as f:
-        img_stream.write(f.read())
-    os.remove(temp_file_path)
-    img_stream.seek(0)
+    with TempFile(suffix=".png") as file:
+        tree.render(file.path, units="px", tree_style=style)
+        img_stream = BytesIO(file.read())
+        img_stream.seek(0)
+        if img_stream is None:
+            return {"error": "Family tree not found"}
     return StreamingResponse(img_stream, media_type="image/png")
