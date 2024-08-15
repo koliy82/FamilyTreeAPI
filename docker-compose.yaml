@@ -1,9 +1,15 @@
 services:
   api:
-    build: .
+    image: python:3.10-slim
     container_name: tree_api
     restart: "no"
     ports:
       - "8000:8000"
     environment:
       - PYTHONUNBUFFERED=1
+    working_dir: /app
+    volumes:
+     - type: bind
+       source: .
+       target: /app
+    command: sh -c "pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt && python -m app.main"
