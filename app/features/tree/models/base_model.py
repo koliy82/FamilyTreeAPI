@@ -18,10 +18,10 @@ class BaseFamilyTree(ABC):
         self.user_id = user_id
         for key, value in kwargs.items():
             setattr(self, key, value)
-        self.process_data()
 
-
-    def process_data(self):
+    def process_data(self, is_repeatable_map=None):
+        if is_repeatable_map is None:
+            is_repeatable_map = {}
         pipeline = [
             {
                 '$match': {
@@ -60,8 +60,10 @@ class BaseFamilyTree(ABC):
                 second_data = result['second']
                 if second_data:
                     self.second = User.from_mongo(second_data)
-            if self.brak and self.brak.baby_user_id:
+            if self.brak and self.brak.baby_user_id and self.user_id not in is_repeatable_map:
+                is_repeatable_map[self.user_id] = True
                 self.next = self.__class__(self.brak.baby_user_id)
+                self.next.process_data(is_repeatable_map)
 
 
     def partner_data(self) -> Tuple[str, int]:
@@ -109,7 +111,7 @@ class BaseFamilyTree(ABC):
         :param root_prefix:
         :return:
         """
-        pass
+        raise NotImplementedError
 
     def root_node(self):
         """
@@ -147,6 +149,7 @@ class BaseFamilyTree(ABC):
            self.recursive_nodes(tree.next, tree.user_id)
 
     def build_tree(self):
+        self.process_data()
         self.root_node()
         if self.next:
             self.recursive_nodes(self.next, root_id=self.user_id)

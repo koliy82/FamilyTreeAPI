@@ -26,17 +26,17 @@ async def root():
 
 @router.get("/text/{user_id}")
 async def family_tree(user_id: int, reverse = True, kid_prefix = '👼 ', kid_suffix = '', partner_prefix = '🫂 ', partner_suffix = '', root_prefix = '', root_suffix = '❤️‍🔥'):
-    model = TreeLib(user_id=user_id, kid_prefix=kid_prefix, kid_suffix=kid_suffix, partner_prefix=partner_prefix, partner_suffix=partner_suffix, root_prefix=root_prefix, root_suffix=root_suffix)
-    model.build_tree()
-    formatted_tree = model.tree.show(stdout=False, reverse=reverse)
+    tree = TreeLib(user_id=user_id, kid_prefix=kid_prefix, kid_suffix=kid_suffix, partner_prefix=partner_prefix, partner_suffix=partner_suffix, root_prefix=root_prefix, root_suffix=root_suffix)
+    tree.build_tree()
+    formatted_tree = tree.tree.show(stdout=False, reverse=reverse)
     return PlainTextResponse(formatted_tree)
 
 
 @router.get("/image_graphviz/{user_id}", responses={404: {"description": "Family tree not found"}})
 async def family_tree(user_id: int, kid_prefix = '', kid_suffix = '', partner_prefix = '', partner_suffix = '', root_prefix = '', root_suffix = ''):
-    model = GraphvizLib(user_id, kid_prefix=kid_prefix, kid_suffix=kid_suffix, partner_prefix=partner_prefix, partner_suffix=partner_suffix, root_prefix=root_prefix, root_suffix=root_suffix)
-    model.build_tree()
-    image_stream = BytesIO(model.graph.pipe(format="png"))
+    tree = GraphvizLib(user_id, kid_prefix=kid_prefix, kid_suffix=kid_suffix, partner_prefix=partner_prefix, partner_suffix=partner_suffix, root_prefix=root_prefix, root_suffix=root_suffix)
+    tree.build_tree()
+    image_stream = BytesIO(tree.graph.pipe(format="png"))
     image_stream.seek(0)
     return StreamingResponse(image_stream, media_type="image/png")
 
@@ -118,7 +118,8 @@ async def family_tree(user_id: int, prog = "dot"):
     nx.draw(
         graph, pos, node_size=20, alpha=0.5, node_color="blue",
         with_labels=True, labels=labels, arrows=True,
-        width=2, font_size=10, font_color="black", linewidths=1.0, node_shape="s"
+        width=2, font_size=10, font_color="black", linewidths=1.0, node_shape="s",
+        font_family=['Sawasdee', 'Gentium Book Basic', 'FreeMono', ]
     )
     plt.axis("equal")
 
