@@ -14,7 +14,7 @@ class BaseFamilyTree(ABC):
     next: Optional['BaseFamilyTree'] = None
 
     def __init__(self, user_id: int, *args, **kwargs):
-        print(f"Root ID: {user_id}")
+        print(f"Process user_id: {user_id}")
         self.user_id = user_id
         for key, value in kwargs.items():
             setattr(self, key, value)
