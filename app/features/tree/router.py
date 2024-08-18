@@ -1,15 +1,16 @@
 from io import BytesIO
 
-import matplotlib.pyplot as plt
 import networkx as nx
+import matplotlib.pyplot as plt
 from anytree.exporter import UniqueDotExporter
 from fastapi import APIRouter, HTTPException
 from igraph import plot
 from starlette.responses import PlainTextResponse, StreamingResponse
 
+from app.features.tree.models.ete3_model import Ete3Lib
 from app.features.tree.models.graphviz_model import GraphvizLib
-from app.features.tree.models.treelib_model import TreeLib
 from app.features.tree.old_model import FamilyTree
+from app.features.tree.models.treelib_model import TreeLib
 from app.utils.temp_file import TempFile
 
 router = APIRouter(
@@ -32,8 +33,8 @@ async def family_tree(user_id: int, reverse = True, kid_prefix = '👼 ', kid_su
 
 
 @router.get("/image_graphviz/{user_id}", responses={404: {"description": "Family tree not found"}})
-async def family_tree(user_id: int):
-    model = GraphvizLib(user_id)
+async def family_tree(user_id: int, kid_prefix = '', kid_suffix = '', partner_prefix = '', partner_suffix = '', root_prefix = '', root_suffix = ''):
+    model = GraphvizLib(user_id, kid_prefix=kid_prefix, kid_suffix=kid_suffix, partner_prefix=partner_prefix, partner_suffix=partner_suffix, root_prefix=root_prefix, root_suffix=root_suffix)
     model.build_tree()
     image_stream = BytesIO(model.graph.pipe(format="png"))
     image_stream.seek(0)
@@ -41,16 +42,13 @@ async def family_tree(user_id: int):
 
 
 @router.get("/image_ete3/{user_id}", responses={404: {"description": "Family tree not found"}})
-async def family_tree(user_id: int):
-    tree = FamilyTree(user_id)
-    tree, style = tree.to_ete3()
-    if tree is None:
-        raise HTTPException(status_code=404, detail="Family tree not found")
-
-    with TempFile(suffix=".png") as file:
-        tree.render(file.path, units="px", tree_style=style)
-        image_stream = BytesIO(file.read())
-        image_stream.seek(0)
+async def family_tree(user_id: int, kid_prefix = '', kid_suffix = '', partner_prefix = '', partner_suffix = '', root_prefix = '', root_suffix = ''):
+    tree = Ete3Lib(user_id, kid_prefix=kid_prefix, kid_suffix=kid_suffix, partner_prefix=partner_prefix, partner_suffix=partner_suffix, root_prefix=root_prefix, root_suffix=root_suffix)
+    tree.build_tree()
+    image_stream = tree.render()
+    if image_stream is None:
+        return {"error": "Family tree not found"}
+    return StreamingResponse(image_stream, media_type="image/png")
 
 
 @router.get("/image_anytree/{user_id}", responses={404: {"description": "Family tree not found"}})
