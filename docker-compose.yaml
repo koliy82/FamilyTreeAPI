@@ -7,9 +7,11 @@ services:
       - "10000:8000"
     environment:
       - PYTHONUNBUFFERED=1
+      - QT_DEBUG_PLUGINS=1
+      - QT_QPA_PLATFORM=offscreen
     working_dir: /app
     volumes:
      - type: bind
        source: .
        target: /app
-    command: sh -c "pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt && python -m app.main"
+    command: sh -c ./docker-setup.sh
