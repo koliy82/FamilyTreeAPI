@@ -25,7 +25,7 @@ async def root():
 
 
 @router.get("/text/{user_id}")
-async def family_tree(user_id: int, reverse = True, kid_prefix = '👼 ', kid_suffix = '', partner_prefix = '🫂 ', partner_suffix = '', root_prefix = '', root_suffix = '❤️‍🔥'):
+async def family_tree(user_id: int, reverse: bool = True, kid_prefix = '👼 ', kid_suffix = '', partner_prefix = '🫂 ', partner_suffix = '', root_prefix = '', root_suffix = '❤️‍🔥'):
     tree = TreeLib(user_id=user_id, kid_prefix=kid_prefix, kid_suffix=kid_suffix, partner_prefix=partner_prefix, partner_suffix=partner_suffix, root_prefix=root_prefix, root_suffix=root_suffix)
     tree.build_tree()
     formatted_tree = tree.tree.show(stdout=False, reverse=reverse)
