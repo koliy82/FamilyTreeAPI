@@ -14,4 +14,4 @@ services:
      - type: bind
        source: .
        target: /app
-    command: sh -c ./docker-setup.sh
+    command: sh -c "chmod 755 docker-setup.sh && ./docker-setup.sh"
