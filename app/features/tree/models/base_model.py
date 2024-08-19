@@ -19,7 +19,7 @@ class BaseFamilyTree(ABC):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def process_data(self, is_repeatable_map=None):
+    def process_data(self, max_duplicate=0, is_repeatable_map=None):
         if is_repeatable_map is None:
             is_repeatable_map = {}
         pipeline = [
@@ -60,10 +60,18 @@ class BaseFamilyTree(ABC):
                 second_data = result['second']
                 if second_data:
                     self.second = User.from_mongo(second_data)
-            if self.brak and self.brak.baby_user_id and self.user_id not in is_repeatable_map:
-                is_repeatable_map[self.user_id] = True
-                self.next = self.__class__(self.brak.baby_user_id)
-                self.next.process_data(is_repeatable_map)
+            if self.brak and self.brak.baby_user_id:
+                if self.user_id not in is_repeatable_map:
+                    is_duplicate = False
+                    is_repeatable_map[self.brak.baby_user_id] = 0
+                else:
+                    duplicate_count = is_repeatable_map[self.user_id]
+                    is_duplicate = duplicate_count >= max_duplicate
+                    is_repeatable_map[self.brak.baby_user_id] = duplicate_count+1
+                    print(f"duplicate: {duplicate_count}/{max_duplicate}")
+                if not is_duplicate:
+                    self.next = self.__class__(self.brak.baby_user_id)
+                    self.next.process_data(max_duplicate, is_repeatable_map)
 
 
     def partner_data(self) -> Tuple[str, int]:
@@ -149,7 +157,7 @@ class BaseFamilyTree(ABC):
            self.recursive_nodes(tree.next, tree.user_id)
 
     def build_tree(self):
-        self.process_data()
+        self.process_data(int(getattr(self, "max_duplicate", 0)))
         self.root_node()
         if self.next:
             self.recursive_nodes(self.next, root_id=self.user_id)

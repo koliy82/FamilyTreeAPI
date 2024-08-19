@@ -33,8 +33,8 @@ async def family_tree(user_id: int, reverse: bool = True, kid_prefix = '👼 ', 
 
 
 @router.get("/image_graphviz/{user_id}", responses={404: {"description": "Family tree not found"}})
-async def family_tree(user_id: int, kid_prefix = '', kid_suffix = '', partner_prefix = '', partner_suffix = '', root_prefix = '', root_suffix = ''):
-    tree = GraphvizLib(user_id, kid_prefix=kid_prefix, kid_suffix=kid_suffix, partner_prefix=partner_prefix, partner_suffix=partner_suffix, root_prefix=root_prefix, root_suffix=root_suffix)
+async def family_tree(user_id: int, kid_prefix = '', kid_suffix = '', partner_prefix = '', partner_suffix = '', root_prefix = '', root_suffix = '', max_duplicate: int = 1):
+    tree = GraphvizLib(user_id, kid_prefix=kid_prefix, kid_suffix=kid_suffix, partner_prefix=partner_prefix, partner_suffix=partner_suffix, root_prefix=root_prefix, root_suffix=root_suffix, max_duplicate=max_duplicate)
     tree.build_tree()
     image_stream = BytesIO(tree.graph.pipe(format="png"))
     image_stream.seek(0)
