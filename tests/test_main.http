@@ -1,11 +1,11 @@
 # Test your FastAPI endpoints
 
-GET http://127.0.0.1:8001/
+GET http://127.0.0.1:8000/
 Accept: application/json
 
 ###
 
-GET http://127.0.0.1:8001/brak/user/1315226075
+GET http://127.0.0.1:8000/brak/user/1315226075
 Accept: application/json
 
 ###

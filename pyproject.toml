@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "famoriatreeapi"
+version = "0.1.0"
+description = ""
+authors = ["Koliy82 <sokol070804@mail.ru>"]
+license = "LICENSE"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "3.11.9"
+fastapi = "^0.112.2"
+uvicorn = "^0.30.6"
+python-dotenv = "^1.0.1"
+familytreelib = "^0.0.9"
+
+[[tool.poetry.source]]
+name = "test"
+url = "https://test.pypi.org/simple/"
+priority = "supplemental"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

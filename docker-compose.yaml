@@ -1,7 +1,7 @@
 services:
   api:
-    image: python:3.10-slim
-    container_name: tree_api
+    image: python:3.11.9-slim
+#    container_name: tree_api # don't use with dokploy
     restart: "no"
     ports:
       - "10000:8000"
@@ -11,7 +11,9 @@ services:
       - QT_QPA_PLATFORM=offscreen
     working_dir: /app
     volumes:
-     - type: bind
-       source: .
-       target: /app
+      - ./app:/app/app
+      - ./poetry.lock:/app/poetry.lock
+      - ./pyproject.toml:/app/pyproject.toml
+      - ./docker-setup.sh:/app/docker-setup.sh
+      - ./.env:/app/.env
     command: sh -c "chmod 755 docker-setup.sh && ./docker-setup.sh"
