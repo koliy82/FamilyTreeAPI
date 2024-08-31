@@ -11,7 +11,7 @@ python = "3.11.9"
 fastapi = "^0.112.2"
 uvicorn = "^0.30.6"
 python-dotenv = "^1.0.1"
-familytreelib = "^0.0.9"
+familytreelib = "^0.0.10"
 
 [[tool.poetry.source]]
 name = "test"

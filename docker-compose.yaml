@@ -1,6 +1,6 @@
 services:
   api:
-    image: python:3.11.9-slim
+    image: python:3.11.9-slim-bullseye
 #    container_name: tree_api # don't use with dokploy
     restart: "no"
     ports:
@@ -16,4 +16,5 @@ services:
       - ./pyproject.toml:/app/pyproject.toml
       - ./docker-setup.sh:/app/docker-setup.sh
       - ./.env:/app/.env
+      - ./resources/fonts:/usr/share/fonts/googlefonts/
     command: sh -c "chmod 755 docker-setup.sh && ./docker-setup.sh"

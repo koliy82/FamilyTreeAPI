@@ -15,14 +15,14 @@
 #pip install networkx[default,extra] pygraphviz pydot lxml
 #python -m app.main
 
+echo "build" > README.md
+
 apt-get update && apt-get upgrade
 apt-get install --no-install-recommends -y
 apt-get install build-essential -y
 apt-get install libgl1-mesa-glx libqt5pdf5 -y
 apt-get install libtiff5-dev -y
 ln -s /usr/lib/x86_64-linux-gnu/libtiff.so.6.0.0 /usr/lib/x86_64-linux-gnu/libtiff.so.5
-ln -s /usr/lib/x86_64-linux-gnu/libtiff.so.6.0.0 /usr/local/lib/python3.10/site-packages/PyQt5/Qt5/plugins/imageformats/libtiff.so.5
-ln -s /usr/lib/x86_64-linux-gnu/libtiff.so.6.0.0 /usr/local/lib/python3.10/site-packages/PyQt5/Qt5/plugins/imageformats/libtiff.so
 pip install --upgrade pip
 pip install poetry
 apt-get autoremove -y
@@ -32,5 +32,13 @@ poetry run pip install pyqt5==5.15.11
 apt-get install graphviz graphviz-dev -y
 apt-get install python-dev graphviz libgraphviz-dev pkg-config -y
 apt-get install python3-dev graphviz libgraphviz-dev pkg-config -y
+echo | ete3 upgrade-external-tools
+
+chmod -R --reference=/usr/share/fonts/opentype /usr/share/fonts/googlefonts
+fc-cache -fv
+fc-list
+fc-match Segoe UI Emoji
+
+
 poetry run pip install pygraphviz
 python -m app.main
