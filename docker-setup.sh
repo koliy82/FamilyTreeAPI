@@ -39,6 +39,6 @@ fc-cache -fv
 fc-list
 fc-match Segoe UI Emoji
 
-
+poetry update
 poetry run pip install pygraphviz
 python -m app.main
