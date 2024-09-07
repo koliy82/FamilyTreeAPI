@@ -285,13 +285,13 @@ files = [
 
 [[package]]
 name = "familytreelib"
-version = "0.0.11"
+version = "0.0.12"
 description = ""
 optional = false
 python-versions = ">=3.11.9,<4.0.0"
 files = [
-    {file = "familytreelib-0.0.11-py3-none-any.whl", hash = "sha256:b7d245a85c98eedb4bcf98b0d51b7f1f634be8fffb1ad97a164edde6a7fb3d85"},
-    {file = "familytreelib-0.0.11.tar.gz", hash = "sha256:616fd1b709c4ec4ffe43cd13aa083b44421c7697521665822afa32e817cd7e88"},
+    {file = "familytreelib-0.0.12-py3-none-any.whl", hash = "sha256:eebe4160a9970bda59f8c1a7373ec623e7fd3f289013dada59d13adf2f44cd83"},
+    {file = "familytreelib-0.0.12.tar.gz", hash = "sha256:fa515b3ce1bb5e32aadd8adb9c2fbb103cc5f4a5b8e26403220b762610c48c07"},
 ]
 
 [package.dependencies]
@@ -1213,4 +1213,4 @@ standard = ["colorama (>=0.4)", "httptools (>=0.5.0)", "python-dotenv (>=0.13)",
 [metadata]
 lock-version = "2.0"
 python-versions = "3.11.9"
-content-hash = "d80ad67d12cf167b712861454a81fb66179dda317a676151686c135801bcb0d3"
+content-hash = "5f6785e95d47503430f70e61ea9c51429c1d3de7b2a7003f4b9c4864252c953e"
